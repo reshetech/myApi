@@ -11,7 +11,10 @@ class MyApiJson extends MyApiOutput
 	 */  
    public function output()
    {
-   	    $this->objToArray();
+   	    if(!empty($this->errors))
+		    return MyApiUtilis::arrayToString($this->errors);
+		
+		$this->objToArray();
 	   
 	    $arr = $this->entreis;	
 			

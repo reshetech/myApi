@@ -9,13 +9,13 @@ myAPI is a simple API that uses curl PHP to pull data in JSON or XML formats fro
 Features
 --------
 <ul>
-	<li>Supports get requests.</li>
-	<li>Returns data in JSON or XML format.</li>
-	<li>The client can choose the number of records to pull from the service.</li>
+	<li>Supports get requests for any data contained in databases. For example, real-estate data, tourists data, sports data, etc.</li>
 	<li>Simple query string in the client side. 
 		<br>
 		e.g. <span class="demi-link">http://www.your-client-site.com?where=country=italy+price&lt;1600</span>
 	</li>
+	<li>Returns data in JSON or XML formats.</li>
+	<li>The client can choose the number of records to pull from the service.</li>
 	<li>Highly secured user authentication.</li>
 	<li>Simple installation on both the service provider side and client side.</li>
 </ul>

@@ -4,8 +4,15 @@ require 'app/configuration/init.php';
 // The name of the table to pull results from. e.g. 'hotels'
 $tableName = '';
 
+// You can give a different name to the table so the results will have a name which is different than the name of the table. e.g. 'resort'.
+//$tableNameAlias = '';
+
 // Name of fields in the table to pull results from. e.g. array('hotel_name','country','date_start','date_end','price')
 $fields    = array();
+
+// You can also give a different name to each field for a more friendly and secure field names.
+// e.g. array('name','region','start','end','price')
+//$fieldsAliases = array();
 
 // Order by clause example. e.g. array('price','asc')
 $orderBy = array();
@@ -38,6 +45,8 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']))
 
 	$posts->setTableName($tableName);
 	
+	// You have to pass only one parameter - $fields,
+    // you can also pass a second parameter - $fieldsAliases.	
 	$posts->setFields($fields);
 	
 	// Number of posts to get from the database.
@@ -69,16 +78,19 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']))
 		exit;
 	}
 	
+	if(!isset($fieldsAliases)) $fieldsAliases = array();
+
+    if(!isset($tableNameAlias)) $tableNameAlias = '';	
 	
 	// Output the result in xml or json format.
 	if($format==='xml')
 	{		
-	    $xml = new \app\classes\MyApiXml($results);			
+	    $xml = new \app\classes\MyApiXml($results,$tableNameAlias,$fieldsAliases);			
 		echo $xml->output();
 	}
 	else 
 	{			
-		$json = new \app\classes\MyApiJson($results);
+		$json = new \app\classes\MyApiJson($results,$tableNameAlias,$fieldsAliases);
 		echo $json->output();
 	}
 }

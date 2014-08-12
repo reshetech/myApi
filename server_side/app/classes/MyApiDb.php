@@ -37,7 +37,7 @@ class MyApiDb
 	 *
 	 * @var array
 	 */
-	protected $fields   = array();  
+	protected $fields   = array();
 	
 	/**
 	 * The where part of the query.
@@ -111,8 +111,11 @@ class MyApiDb
 	{
 		if(!is_array($fields)) 
 		    return $this->errors[]="Fields should be inputted as array of fields.";
+		
+		if(count($fields)<1)
+		    return $this->errors[]="There should be at least one field in the fields array";
 			
-		return $this->fields=$fields;
+		return $this->fields = $fields;
 	}
 	
 	
@@ -337,7 +340,7 @@ class MyApiDb
 	/**
 	 * Checks if the where array for the query is valid.
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	private function isValidWhere($arr)
 	{
