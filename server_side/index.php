@@ -78,21 +78,12 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']))
 		exit;
 	}
 	
+	// Output the result in xml or json format.
 	if(!isset($fieldsAliases)) $fieldsAliases = array();
 
     if(!isset($tableNameAlias)) $tableNameAlias = '';	
-	
-	// Output the result in xml or json format.
-	if($format==='xml')
-	{		
-	    $xml = new \app\classes\MyApiXml($results,$tableNameAlias,$fieldsAliases);			
-		echo $xml->output();
-	}
-	else 
-	{			
-		$json = new \app\classes\MyApiJson($results,$tableNameAlias,$fieldsAliases);
-		echo $json->output();
-	}
+
+	echo \app\classes\MyApiOutputFactory::createOutput($format,$results,$tableNameAlias,$fieldsAliases);
 }
 else
 {
