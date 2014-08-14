@@ -1,17 +1,17 @@
 <?php
 namespace Reshetech\MyApi;
 
-class Xml extends Output
+class Xml extends OutputAbstract
 {
 	/**
 	 * Output xml data.
 	 *
 	 * @return string
 	 */ 	   
-	public function output()
+	public function get()
 	{
-	    if(!empty($this->errors))
-		    return Utilis::arrayToString($this->errors);
+		if(!empty($this->errors))
+		    return $this->printResult(Utilis::arrayToString($this->errors));
 		    
 		$this->objToArray();
 	   
@@ -38,7 +38,9 @@ class Xml extends Output
 			$output .= "</".$tableName.">".PHP_EOL;
 		}
 		$output .= "</group-".$tableName.">";
+		
+		Utilis::writeHeader('Content-Type: text/xml',200,false);
 	   
-        return $output;
+        $this->printResult($output);
    }
 }

@@ -1,195 +1,100 @@
 <?php
 namespace Reshetech\MyApi;
 
-abstract class Output
+class Output
 {
-	/**
-	 * The name of the returned results according to the queried table in the database.
-	 *
-	 * @var string
-	 */	
-	protected $tableName; 
-	
-	/**
-	 * Array of field names for the output according to the fields in the queried database table.
-	 *
-	 * @var array
-	 */
-	protected $fields=array();
-
     /**
-	 * The fields aliases.
-	 *
-	 * @var array
+	 *   The object that holds the output.
 	 */
-	protected $fieldsAliases = array();
-
+	protected $obj;
+	
 	/**
-	 * Replaces the table name as the root name for the results in XML.
+	 * The format for output: json, xml or false.
 	 *
-	 * @var array
-	 */
-    protected $tableNameAlias='';	
-		
+	 * @var mixed
+	 */		    
+    protected $format = false;
+	
 	/**
-	 * Array of results returned from the database query.
+	 * The acceptable formats.
 	 *
 	 * @var array
 	 */	
-	protected $results;
+	protected $acceptableFormats = array('xml','json');
 	
 	/**
-	 * Array of results for the output.
+	 * Creates the object to hold the output.
 	 *
-	 * @var array
+	 * @param  string $format
+	 * @param  array  $results
+	 * @return the object
 	 */
-	protected $entreis=array();
-	
-	/**
-	 * Number of records presented.
-	 *
-	 * @var integer
-	 */
-	protected $numOfEntries;
-	
-	/**
-	 * The errors array.
-	 *
-	 * @var array
-	 */ 
-    protected $errors   = array();
-	
+	public function create($format,$results=false)
+	{
+		if(!$results) return false;
+		
+		$format = $this->setFormat($format);
+		
+		$format = ucfirst(trim(strtolower($format)));
+
+		$class  = 'Reshetech\MyApi\\'.$format;
     
+		return $this->obj = new $class($results);	
+	}
+	
 	/**
-	 * Distributes the data of the database query between the class' variables.
+	 * Set an alias to the table name to be used as a root element for xml.
 	 *
-	 * @param  array
+	 * @param string $str
 	 * @return mixed
 	 */
-	public function __construct(array $results, $tableNameAlias, array $fieldsAliases)
-    {
-	    $this->tableName = $results[0];
-			   
-	    $this->fields    = $results[1];
-		
-		$this->results   = $results[2];
-		
-		if(isset($tableNameAlias) && $tableNameAlias !== '')
+	public function setTableAlias($str)
+	{
+	    if(isset($str) && $str !== '')
 		{
-		    $tableNameAlias = trim($tableNameAlias);
+			$tableNameAlias = trim($str);
 			
 			if(is_string($tableNameAlias))
-			    $this->tableNameAlias = $tableNameAlias;
+			    $this->obj->setAliasedTableName($tableNameAlias);
 			else	
-			    $this->errors[]='The table alias is not a string or an empty string.';
+			    $this->obj->errors[]='The table alias is not a string or an empty string.';
 		}
-
-		if(isset($fieldsAliases) && !empty($fieldsAliases))
-		{
-		    if($this->isValidFieldsAliases($fieldsAliases))
-				return $this->fieldsAliases = $fieldsAliases;
-			else
-			    $this->errors[]='The number of items in your fields aliases array does not match the number of items in your fields array.';
-		}
-    }
-    
-	
-	/**
-	 * Turns the object that was returned from the database query into an array.
-	 *
-	 * @return array
-	 */
-    protected function objToArray()
-    {
-		$entreis=array();
-				
-        $numOfEntry = 0;
-		$results=$this->results;
-	    foreach($results as $result)
-        {
-           $fields=$this->fields;	
-
-           foreach($fields as $field)
-		   {
-               $entreis[$numOfEntry][$field] = $result->$field;
-		   }
-           
-			$numOfEntry++;
-        }
-		$this->numOfEntries=$numOfEntry;
-
-		return $this->entreis=$this->transformResults($entreis);
-    }
-	
-	/**
-	 * Return the array of aliased fields if exists, otherwise the original array of fields.
-	 * 
-	 * @return array
-	 */
-	protected function getAliassedFields()
-	{
-	    if(!empty($this->fieldsAliases))
-		    return $this->fieldsAliases;
-	
-	    return $this->fields;
 	}
 	
 	/**
-	 * Return the alias for the table name if exists, otherwise the original table name.
-	 * 
+	 * Set the alias for the fields names.
+	 *
+	 * @param array @arr
+	 * @return
+	 */
+	public function setFieldsAlias($arr)
+	{
+	    if(isset($arr) && !empty($arr))
+		    $this->obj->setAliasedFieldsNames($arr);
+	}
+	
+	/**
+	 * Output the results
+	 *
 	 * @return string
 	 */
-	protected function getAliasedTableName()
+	public function get()
 	{
-	    if($this->tableNameAlias !== '')
-		    return $this->tableNameAlias;
-	
-	    return $this->tableName;
+	    return $this->obj->get();
 	}
 	
-	/**
-	 * Checks if the fields aliases array is valid.
-	 * 
-	 * @return boolean
-	 */
-	protected function isValidFieldsAliases($arr)
-	{
-		if(!is_array($arr)) return false;
-		
-		if(count($arr)<>count($this->fields)) return false;
-		
-		return true;
-	}
 	
 	/**
-	 * Replaces the fields names with the fields aliases names.
+	 * Get the output format.
 	 *
-	 * @return array
+	 * @param  string $str
+	 * @return string
 	 */
-	protected function transformResults($entries)
+	public function setFormat($str)
 	{
-		if(empty($this->fieldsAliases))
-		    return $entries;
+		if(!in_array($str,$this->acceptableFormats)) 
+		    return $this->format='json';
 
-        $transformedArray = array();
-		
-		$k=0;
-		foreach($entries as $entry)
-		{
-			$fieldsAliases = $this->fieldsAliases;
-
-			$i = 0;
-			foreach($entry as $origKey => $value)
-			{
-				$newKey = $fieldsAliases[$i];
-
-				$transformedArray[$k][$newKey] = $value;
-				
-				$i++;
-			}
-			$k++;
-		}
-
-		return $transformedArray;
+		return $this->format = $str;
 	}
 }

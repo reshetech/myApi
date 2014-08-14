@@ -34,8 +34,8 @@ class Auth extends Db
 	 */	
     public function isAuth($key,$pass)
 	{
-		$key  = sha1(preg_replace('/[^0-9a-zA-Z-_]/','',$key));
-		$pass = sha1(preg_replace('/[^0-9a-zA-Z-_]/','',$pass));
+		$key  = sha1(Utilis::cleanString($key));
+		$pass = sha1(Utilis::cleanString($pass));
 		
 		// The distant client should meet these 3 conditions to be authenticated.			
 		$where     = array(
@@ -48,13 +48,9 @@ class Auth extends Db
 
 		$results=$this->getResults();
 
-		if(!$results) return false;
+		if(!$results) Utilis::writeHeader("Unauthorized distant user",403,true);
 		
-		$id=$results[0]->id;
-
-		if(isset($id) && (int)$id > 0) return true;
-		
-		return false;
+	    return true;
 	}
 }
 	

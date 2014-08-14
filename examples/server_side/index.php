@@ -10,81 +10,57 @@ $tableName = 'hotels';
 //$tableNameAlias = 'resort';
 
 // Name of fields in the table to pull results from. e.g. array('hotel_name','country','date_start','date_end','price')
-$fields    = array();
+$fields    = array('hotel_name','country','date_start','date_end','price');
 
 // You can also give a different name to each field for a more friendly and secure field names. e.g. array('name','region','start','end','price')
 //$fieldsAliases = array('name','region','start','end','price');
 
 // Order by clause example. e.g. array('price','asc')
-$orderBy = array();
+$orderBy = array('price','desc');
 	
 
 if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']))
 {
-	// Checks if the user is authenticated according to his key and pass.	
-	$authObj  = new MyApi\Auth();
+	// Check if the user is authenticated according to his user-key and password.	
+	$auth = new MyApi\Auth();
 	
-	$auth = $authObj->isAuth($_POST['key'],$_POST['pass']);
-	
-	if(!$auth)
-	{	
-		echo $errors = $authObj->getErrors();	
-		echo "Unauthorized distant user.";
-		exit;	
-	}		
-		
+	$auth->isAuth($_POST['key'],$_POST['pass']);	
 			
-	// Checks if the returned format is valid. 
-	// The returned formats are json or xml.
-	$checkFormat = new MyApi\Format($_POST['format']);
-	
-	$format   = $checkFormat->getFormat();
-	
-	
+			
+			
 	// Query the database for the selected data.
 	$posts  = new MyApi\Posts();
+	
+	$posts->create($tableName,$fields,$_POST['where']);
 
-	$posts->setTableName($tableName);
-	
-	// You have to pass only one parameter - $fields,
-    // you can also pass a second parameter - $fieldsAliases.	
-	$posts->setFields($fields);
-	
-	// Number of posts to get from the database.
+	// Optional 1: maximum number of records to return.
 	if(isset($_POST['num']))
-	{
 		$posts->setNum($_POST['num']);
-	}
-	
-	// Where string.
-	if(isset($_POST['where']))
-    {	
-	    $posts->prepareWhere($_POST['where']);
-	}
-	
+		
+	// Optional 2: how to order the records.
 	if(isset($orderBy))
-	{
 	    $posts->setOrderBy($orderBy);
-	}
 	
 	// The results returned from the query.
-	$results=$posts->getResults();
-	
-	if(!$results)
-	{
-		echo "Query error.<br />"; 
-		
-		echo $errors = $posts->getErrors();
-		
-		exit;
-	}
-	
-	if(!isset($fieldsAliases)) $fieldsAliases = array();
+	$results=$posts->get();
 
-    if(!isset($tableNameAlias)) $tableNameAlias = '';	
 	
-	// Output the result in xml or json format.
-	echo myApi\OutputFactory::createOutput($format,$results,$tableNameAlias,$fieldsAliases);
+	
+	// Prepare the output.
+	$output = new myApi\Output();
+	
+	$output->create($_POST['format'],$results);
+	
+	// Optional 1: set an alias to the table name.
+	if(isset($tableNameAlias))
+	    $output->setTableAlias($tableNameAlias);
+	
+	// Optional 2: set an alias to the table fields.
+	if(isset($fieldsAliases))
+	    $output->setFieldsAlias($fieldsAliases);	
+
+	// Output the results as xml or json formats.
+	$output->get();
 }
 else
 {

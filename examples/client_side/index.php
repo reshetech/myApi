@@ -2,10 +2,9 @@
 
 if(isset($_GET['where']))
 {
-	// Edit this part.
 	$clientKey  = ''; // Unhashed user key from authentications table
 	$clientPass = ''; // Unhashed user password from authentications table
-	$url        = "http://client-site/path/to/myApi/index.php"; // Change to your web service site and path to myApi folder
+	$url        = "http://webservice-side.com/path/to/myApi"; // Change to your web service site and path to myApi folder
 	
 	
 	// Do not edit beneath this remark.
@@ -25,20 +24,31 @@ if(isset($_GET['where']))
 						CURLOPT_POST=>true,
 						CURLOPT_RETURNTRANSFER=>true,
 						CURLOPT_POSTFIELDS=>$credentials,
-						CURLOPT_HEADER=>false)
+						CURLOPT_HEADER=>true)
 	);
 
 	$data = curl_exec($handle); 
-
+	
+    // Extract the head and body parts of the response.
+	$headerSize   = curl_getinfo($handle,CURLINFO_HEADER_SIZE);
+	
+	$responseCode = curl_getinfo($handle,CURLINFO_HTTP_CODE);
+	
 	if(curl_errno($handle))
 		print curl_error($handle);
 	else
 		curl_close($handle);
-
-	if($format==="xml") 
-	{
-	    header('Content-type: text/xml');
-	}
+		
+	$header = substr($data, 0, $headerSize);
+	$body   = substr($data, $headerSize);
 	
-	echo $data;
+	// Output the response.
+	if(strpos($header,'xml'))
+	    header('Content-type: text/xml');
+	elseif(strpos($header,'json'))
+	    header('Content-type: application/json');
+	else
+	    header('Content-Type: text/html; charset=utf-8');
+	
+	echo($responseCode != '200')? $header : $body;
 }

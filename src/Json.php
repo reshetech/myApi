@@ -1,7 +1,7 @@
 <?php
 namespace Reshetech\MyApi;
 
-class Json extends Output
+class Json extends OutputAbstract
 {
    	
    /**
@@ -9,15 +9,17 @@ class Json extends Output
 	 *
 	 * @return string
 	 */  
-   public function output()
+   public function get()
    {
    	    if(!empty($this->errors))
-		    return Utilis::arrayToString($this->errors);
+		    return $this->printResult(Utilis::arrayToString($this->errors));
 		
 		$this->objToArray();
 	   
-	    $arr = $this->entreis;	
-			
-   	    return json_encode($arr);
+	    $arr = $this->entreis;
+
+        Utilis::writeHeader('Content-Type: application/json',200,false);
+	   
+        $this->printResult(json_encode($arr));
    }
 }

@@ -26,6 +26,23 @@ class Posts extends Db
 	
 	
 	/**
+	 * Set the values of necessary variables for this class.
+	 *
+	 * @param string $tableName
+	 * @param array  $fields
+	 * @param string $where
+	 */
+	public function create($tableName,$fields,$where)
+	{
+	    $this->setTableName($tableName);
+		
+	    $this->setFields($fields);
+		
+	    $this->prepareWhere($where);
+	}
+	
+	
+	/**
 	 * Set the nubmer of returned results.
 	 *
 	 * @param  integer
@@ -57,13 +74,22 @@ class Posts extends Db
 	 *
 	 * @return mixed
 	 */
-	public function getResults()
+	public function get()
     {
         $this->execute();
 	        
-        if(!empty($this->errors)) return false;
-       
-        return array($this->tableName,$this->fields,$this->results);    
+        if(!empty($this->errors))
+		{
+		    Utilis::writeHeader('Content-Type: text/html',404,false);
+			
+			echo Utilis::arrayToString($this->errors);
+			
+			return false;
+		}
+        else
+		{
+            return array($this->tableName,$this->fields,$this->results);
+        }			
     }
 	
 	
