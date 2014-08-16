@@ -22,23 +22,7 @@ class Utilis
 
         return $string;
     }
-	
-	
-	/**
-	 * Write the header for the output.
-	 *
-	 * @param  string  $msg
-	 * @param  integer $code
-	 * @param  boolean  $exit
-	 * @return 
-	 */ 
-	public static function writeHeader($msg,$code,$exit=false)
-	{
-        header($msg,true,$code);
-		
-		if($exit) exit;
-    }
-	
+
 	
 	/**
 	 * Leave only the allowed characters.
@@ -48,7 +32,7 @@ class Utilis
 	 */ 
 	public static function cleanString($str)
 	{
-	    return preg_replace('/[^0-9a-zA-Z-_]/','',$str);
+	    return preg_replace('/[^0-9a-zA-Z-_,:\/\. ]/','',$str);
 	}
 	
 	

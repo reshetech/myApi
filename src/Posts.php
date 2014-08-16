@@ -23,7 +23,7 @@ class Posts extends Db
 	 * @var integer
 	 */
 	protected $num;
-	
+
 	
 	/**
 	 * Set the values of necessary variables for this class.
@@ -80,9 +80,11 @@ class Posts extends Db
 	        
         if(!empty($this->errors))
 		{
-		    Utilis::writeHeader('Content-Type: text/html',404,false);
+		    $this->views->notFound('No results found.')->getHeader();
 			
-			echo Utilis::arrayToString($this->errors);
+			$errors = Utilis::arrayToString($this->errors);
+			
+			$this->views->writeToScreen($errors,true);
 			
 			return false;
 		}

@@ -23,8 +23,8 @@ class Auth extends Db
 	 * @var array
 	 */	     
 	protected $limit     = array(0,1);
+
 	
-							
 	/**
 	 * Exposed method that checks if the user exists.
 	 *
@@ -48,7 +48,12 @@ class Auth extends Db
 
 		$results=$this->getResults();
 
-		if(!$results) Utilis::writeHeader("Unauthorized distant user",403,true);
+		if(!$results)
+        {		
+		    $this->views->unAuthorized()->getHeader();
+			
+			return $this->views->writeToScreen("Unauthorized user.",true);
+		}
 		
 	    return true;
 	}

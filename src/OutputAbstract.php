@@ -8,14 +8,14 @@ abstract class OutputAbstract
 	 *
 	 * @var string
 	 */	
-	protected $tableName; 
+	protected $tableName;
 	
 	/**
 	 * Array of fields names for the output according to the fields in the queried database table.
 	 *
 	 * @var array
 	 */
-	protected $fields=array();
+	protected $fields = array();
 
     /**
 	 * The fields aliases.
@@ -59,6 +59,13 @@ abstract class OutputAbstract
 	 */ 
     protected $errors   = array();
 	
+	/**
+	 * The views object.
+	 *
+	 * @var object Views
+	 */ 
+	protected $views;
+	
     
 	/**
 	 * Distribute the data of the database query between the class' variables.
@@ -73,6 +80,8 @@ abstract class OutputAbstract
 	    $this->fields    = $results[1];
 		
 		$this->results   = $results[2];
+
+	    $this->views=new Views();
     }
 	
 
@@ -220,13 +229,9 @@ abstract class OutputAbstract
 	
 	
 	/**
-	 * Print the results.
+	 * Output encoded data.
 	 *
-	 * @param  string $str
 	 * @return string
 	 */
-	protected function printResult($str)
-	{
-	    echo $str;
-	}
+	public abstract function get();
 }

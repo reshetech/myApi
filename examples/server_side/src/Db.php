@@ -2,6 +2,9 @@
 namespace Reshetech\MyApi;
 use \PDO;
 
+require 'config/const.php';
+
+
 class Db
 {
     /**
@@ -73,6 +76,20 @@ class Db
 	 * @var array
 	 */ 
     protected $errors   = array();
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	protected $views;
+	
+	
+	
+	
          
     
     /**
@@ -80,10 +97,25 @@ class Db
 	 *
 	 * @return void
 	 */
+	 
+	 
+	 
+	 
+	 
+	 
+	 
     public function __construct()
     {
-		if(!$this->dbh) return $this->connector();	
+		$this->views=new Views();
+		
+		if(!$this->dbh) 
+		    return $this->connector();
     }
+	
+	
+	
+	
+	
 	
 	
 	/**
@@ -226,7 +258,7 @@ class Db
         
         $sql  = "SELECT {$fieldsStr} "; 
         $sql .= " FROM {$this->tableName} ";	
-		$sql .= " WHERE {$this->whereString} ";	
+		$sql .= " WHERE {$this->whereString} ";
 		
 		if(!empty($this->orderBy))
 			$sql .= " ORDER BY {$this->orderBy[0]} {$this->orderBy[1]} ";
@@ -247,8 +279,8 @@ class Db
         $this->select();
 		
 		if(!empty($this->errors)) return false;
-			           
-        $query = $this->dbh->prepare($this->sql); 
+		
+		$query = $this->dbh->prepare($this->sql); 
 		
 		$i     = 1;
 		$arr   = $this->whereArray;

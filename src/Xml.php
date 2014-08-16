@@ -6,13 +6,11 @@ class Xml extends OutputAbstract
 	/**
 	 * Output xml data.
 	 *
+	 * @return header
 	 * @return string
 	 */ 	   
 	public function get()
-	{
-		if(!empty($this->errors))
-		    return $this->printResult(Utilis::arrayToString($this->errors));
-		    
+	{  
 		$this->objToArray();
 	   
 		$arr = $this->entreis;
@@ -38,9 +36,9 @@ class Xml extends OutputAbstract
 			$output .= "</".$tableName.">".PHP_EOL;
 		}
 		$output .= "</group-".$tableName.">";
-		
-		Utilis::writeHeader('Content-Type: text/xml',200,false);
 	   
-        $this->printResult($output);
+        $this->views->setXmlHeader()->getHeader();
+		
+		$this->views->writeToScreen($output,true);
    }
 }

@@ -4,7 +4,10 @@ namespace Reshetech\MyApi;
 class Output
 {
     /**
-	 *   The object that holds the output.
+	 * The object that holds the output.
+	 *
+	 * @var Reshetech\MyApi\Xml
+	 * @var Reshetech\MyApi\Json
 	 */
 	protected $obj;
 	
@@ -21,6 +24,7 @@ class Output
 	 * @var array
 	 */	
 	protected $acceptableFormats = array('xml','json');
+
 	
 	/**
 	 * Creates the object to hold the output.
@@ -50,14 +54,9 @@ class Output
 	 */
 	public function setTableAlias($str)
 	{
-	    if(isset($str) && $str !== '')
+	    if(isset($str) && $str !== '' && is_string($str))
 		{
-			$tableNameAlias = trim($str);
-			
-			if(is_string($tableNameAlias))
-			    $this->obj->setAliasedTableName($tableNameAlias);
-			else	
-			    $this->obj->errors[]='The table alias is not a string or an empty string.';
+			$this->obj->setAliasedTableName(trim($str));
 		}
 	}
 	
@@ -80,7 +79,7 @@ class Output
 	 */
 	public function get()
 	{
-	    return $this->obj->get();
+		return $this->obj->get();
 	}
 	
 	
