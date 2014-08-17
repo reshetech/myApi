@@ -25,7 +25,7 @@ class Views
 	protected $replace = true;
 	
 	/**
-	 * Header content type.
+	 * Header content.
 	 *
 	 * @var mixed
 	 */

@@ -15,7 +15,9 @@ class Xml extends OutputAbstract
 	   
 		$arr = $this->entreis;
 		
-		$tableName = $this->getAliasedTableName();
+		$tableName = $this->getTableName();
+		
+		$fields = $this->getFields();
 
 		$output  = '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
 
@@ -24,8 +26,6 @@ class Xml extends OutputAbstract
 		$numOfRows = $this->numOfEntries;
 		for($i = 0 ; $i < $numOfRows; $i++)
 		{
-			$fields = $this->getAliassedFields();
-	
 			$output .= "<".$tableName.">".PHP_EOL;
 			 
 			foreach($fields as $field)

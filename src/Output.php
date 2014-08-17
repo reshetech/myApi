@@ -45,33 +45,8 @@ class Output
     
 		return $this->obj = new $class($results);	
 	}
-	
-	/**
-	 * Set an alias to the table name to be used as a root element for xml.
-	 *
-	 * @param string $str
-	 * @return mixed
-	 */
-	public function setTableAlias($str)
-	{
-	    if(isset($str) && $str !== '' && is_string($str))
-		{
-			$this->obj->setAliasedTableName(trim($str));
-		}
-	}
-	
-	/**
-	 * Set the alias for the fields names.
-	 *
-	 * @param array @arr
-	 * @return
-	 */
-	public function setFieldsAlias($arr)
-	{
-	    if(isset($arr) && !empty($arr))
-		    $this->obj->setAliasedFieldsNames($arr);
-	}
-	
+
+
 	/**
 	 * Output the results
 	 *

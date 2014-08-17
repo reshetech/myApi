@@ -23,7 +23,14 @@ class Posts extends Db
 	 * @var integer
 	 */
 	protected $num;
-
+	
+	/**
+	 * Replace the table name as the root name for the results in XML.
+	 *
+	 * @var array
+	 */
+    protected $tableNameAlias = '';	
+	
 	
 	/**
 	 * Set the values of necessary variables for this class.
@@ -70,6 +77,37 @@ class Posts extends Db
 	
 	
 	/**
+	 * Set an alias to the table name.
+	 *
+	 * @param  string $str
+	 * @return string
+	 */
+	public function setTableAlias($str)
+	{
+	    $str = trim($str);
+		
+		if(is_string($str) && $str != '')
+		{
+		    $this->tableNameAlias = Utilis::cleanString($str);
+		}
+	}
+	
+	
+	/**
+	 * Return the alias for the table name if exists, otherwise the original table name.
+	 * 
+	 * @return string
+	 */
+	protected function getAliasedTableName()
+	{
+	    if($this->tableNameAlias !== '')
+		    return $this->tableNameAlias;
+	
+	    return $this->tableName;
+	}
+	
+	
+	/**
 	 * Return the query results.
 	 *
 	 * @return mixed
@@ -90,7 +128,13 @@ class Posts extends Db
 		}
         else
 		{
-            return array($this->tableName,$this->fields,$this->results);
+            $tableName = $this->getAliasedTableName();
+			
+			$fields    = $this->getAliassedFields();
+			
+			$results   = $this->transformFieldNames($this->results);
+			
+			return array($tableName,$fields,$results);
         }			
     }
 	
@@ -212,5 +256,44 @@ class Posts extends Db
 		}
 
 	    return $this->setWhere($where);
+	}
+	
+	
+	/**
+	 * Replace the fields names with the fields aliases names.
+	 *
+	 * @param  array $entries
+	 * @return array
+	 */
+	protected function transformFieldNames($entries)
+	{
+		if(empty($this->fieldsAliases))
+		    return $entries;
+			
+		$fieldsAliases    = $this->fieldsAliases;
+
+        $transformedArray = array();
+		
+		$k=0;
+		foreach($entries as $entry)
+		{
+			$object = new \StdClass;
+			
+			$i=0;
+			
+			foreach($entry as $origKey => $value)
+			{
+				$newKey = $fieldsAliases[$i];
+				
+				$object->$newKey = $value;
+				
+				$i++;
+			}
+			
+			$transformedArray[$k] = $object;
+			
+			$k++;
+		}
+		return $transformedArray;
 	}
 }

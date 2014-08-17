@@ -71,39 +71,32 @@ class Db
 	protected $limit    = array(0,10);
 	
 	/**
+	 * The aliased names of the fields.
+	 *
+	 * @var array
+	 */
+	protected $fieldsAliases = array();
+	
+	/**
 	 * The errors array.
 	 *
 	 * @var array
 	 */ 
     protected $errors   = array();
 	
-	
-	
-	
-	
-	
-	
-	
-	
+	/**
+	 * The views object.
+	 *
+	 * @var Views
+	 */
 	protected $views;
 	
-	
-	
-	
-         
-    
+
     /**
 	 * If we haven't created the connection, we'll create it.
 	 *
 	 * @return void
 	 */
-	 
-	 
-	 
-	 
-	 
-	 
-	 
     public function __construct()
     {
 		$this->views=new Views();
@@ -112,12 +105,7 @@ class Db
 		    return $this->connector();
     }
 	
-	
-	
-	
-	
-	
-	
+
 	/**
 	 * Set the table name for the current query.
 	 *
@@ -200,23 +188,8 @@ class Db
 		if($this->isValidWhere($where))
 		{	
 			$where = $this->flatArrayToMulti($where);
-			
-			$count = count($where);	
-			
-			$build=' ';	
-				
-			for($i=0; $i<$count; $i++)
-			{
-				$build .= "`".$where[$i][0]."`".$where[$i][1]."?";
-				if($i<$count-1) 
-				{
-				    $build .= (isset($where[$i][3]))? " {$where[$i][3]} " : " AND ";
-				}
-			}
-			
-			$this->whereArray=$where;
 
-			return $this->whereString=$build.' ';
+			return $this->whereArray=$where;
 		}
 	}
 	
@@ -248,6 +221,55 @@ class Db
 	
 	
 	/**
+	 * Set an alias to the fields names.
+	 *
+	 * @param  array $arr
+	 * @return mixed
+	 */
+	public function setFieldsAlias(array $arr)
+	{
+	    $arr = Utilis::cleanArray($arr);
+
+		if($this->isValidFieldsAliases($arr))
+		    return $this->fieldsAliases = $arr;
+		
+		$this->errors[]='The number of items in your fields aliases array does not match the number of items in your fields array.';
+	}
+	
+	
+	/**
+	 * Return the array of aliased fields if exists, otherwise the original array of fields.
+	 * 
+	 * @return array
+	 */
+	public function getAliassedFields()
+	{
+	    if(!empty($this->fieldsAliases))
+		    return $this->fieldsAliases;
+	
+	    return $this->fields;
+	}	
+	
+	
+	/**
+	 * Check if the fields aliases array is valid.
+	 * 
+	 * @return boolean
+	 */
+	protected function isValidFieldsAliases($arr)
+	{
+		if(!is_array($arr)) return false;
+		
+		if(count($arr)<>count($this->fields)) return false;
+		
+		foreach($arr as $item)
+		    if(trim($item) == '') return false;
+		
+		return true;
+	}
+	
+	
+	/**
 	 * Set the sql query string.
 	 *
 	 * @return string
@@ -255,6 +277,8 @@ class Db
 	protected function select()
     {
         $fieldsStr = $this->selectedFields();
+		
+		$this->buildWhere($this->whereArray);
         
         $sql  = "SELECT {$fieldsStr} "; 
         $sql .= " FROM {$this->tableName} ";	
@@ -367,8 +391,8 @@ class Db
         
 		return false;
 	}
-
 	
+
 	/**
 	 * Checks if the where array for the query is valid.
 	 *
@@ -430,7 +454,7 @@ class Db
     
     
 	/**
-	 * Creates string of fields out of the fields array.
+	 * Create string of fields out of the fields array.
 	 *
 	 * @return string
 	 */
@@ -439,6 +463,52 @@ class Db
 		$fields = $this->fields;
 		
 		return implode(",", $fields);
+	}
+	
+	
+	/**
+	 * Create where string out of the where array.
+	 *
+	 * @return string
+	 */
+	private function buildWhere($where)
+	{
+		$count = count($where);
+		
+		$build=' ';
+			
+		for($i=0; $i<$count; $i++)
+		{
+			$where0 = $this->aliasToOriginalFieldName($where[$i][0]);
+			
+			$build .= "`".$where0."`".$where[$i][1]."?";
+			
+			if($i<$count-1) 
+			{
+				$build .= (isset($where[$i][3]))? " {$where[$i][3]} " : " AND ";
+			}
+		}
+	
+	    return $this->whereString=$build.' ';
+	}
+	
+	
+	/**
+	 * Replace the alias field name, if exist, with the table field name.
+	 *
+	 * @var string $str
+	 * @param string
+	 **/
+	private function aliasToOriginalFieldName($str)
+	{
+	    if(!empty($this->fieldsAliases))
+		{
+			$position = (array_search($str, $this->fieldsAliases));
+			
+			return $this->fields[$position];
+		}
+		
+		return $str;
 	}
 	
 	

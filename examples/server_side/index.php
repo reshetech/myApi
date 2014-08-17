@@ -39,6 +39,14 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']) && $_
 	// Optional 2: how to order the records.
 	if(isset($orderBy))
 	    $posts->setOrderBy($orderBy);
+		
+	// Optional 3: set an alias to the table name.
+	if(isset($tableNameAlias))
+	    $posts->setTableAlias($tableNameAlias);
+	
+	// Optional 4: set an alias to the table fields.
+	if(isset($fieldsAliases))
+	    $posts->setFieldsAlias($fieldsAliases);
 	
 	// The results returned from the query.
 	$results=$posts->get();
@@ -48,14 +56,6 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']) && $_
 	$output = new myApi\Output();
 	
 	$output->create($_POST['format'],$results);
-	
-	// Optional 1: set an alias to the table name.
-	if(isset($tableNameAlias))
-	    $output->setTableAlias($tableNameAlias);
-	
-	// Optional 2: set an alias to the table fields.
-	if(isset($fieldsAliases))
-	    $output->setFieldsAlias($fieldsAliases);
 
 	// Output the results as xml or json formats.
 	$output->get();
