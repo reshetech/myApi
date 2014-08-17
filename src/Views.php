@@ -24,6 +24,13 @@ class Views
 	 */	
 	protected $replace = true;
 	
+	/**
+	 * Header content type.
+	 *
+	 * @var mixed
+	 */
+	protected $content = null;
+	
 	
 	/**
 	 * Set unauthorized 403 header.
@@ -111,11 +118,11 @@ class Views
 	    if(is_string($message))
 		    $this->message[] = Utilis::cleanString($message);
 		
-		if((int)$code>199)
-		    $this->replace = (int)$code;
+		if((int)$code>=100 || (int)$code<=600)
+		    $this->code = (int)$code;
 		
 		if(is_bool($replace))
-		    $this->code = $replace;
+		    $this->replace = $replace;
 			
 		return $this;
 	}
@@ -128,7 +135,7 @@ class Views
 	 */
 	public function setJsonHeader()
 	{		
-		$this->message[] = $this->setContentType('application/json');
+		$this->setContent('application/json');
 		
 		return $this;
 	}
@@ -141,7 +148,7 @@ class Views
 	 */
 	public function setXmlHeader()
 	{
-	    $this->message[] = $this->setContentType('application/xml');
+	    $this->setContent('application/xml');
 		
 		return $this;
 	}
@@ -152,11 +159,24 @@ class Views
 	 *
 	 * @param string $str
 	 */
-	protected function setContentType($str)
+	public function setContent($str)
 	{
-	    if(!is_string($str)) return;
-		
-		return 'Content-Type: '.$str;
+	    if($str && is_string($str))
+		    return $this->content = trim($str);
+	}
+	
+	
+	/**
+	 * Get the content type for the header.
+	 *
+	 * @return mixed
+	 */
+	public function getContent()
+	{
+	    if($this->content && is_string($this->content))
+		    return 'Content-Type: '.$this->content;
+			
+		return false;
 	}
 	
 	
@@ -175,6 +195,9 @@ class Views
 		
 		$replace  = $this->replace;
 		
+		if($this->getContent())
+		    header($this->getContent());
+		
 		return header($protocol . ' ' . $code . ' ' . $message, $replace);
 	}
 	
@@ -182,7 +205,7 @@ class Views
 	/**
 	 * Print string to screen, and exit.
 	 */
-	public function writeToScreen($str,$exit=false)
+	public function writeToScreen($str,$exit=true)
 	{
 	    if(is_string($str))
 		    echo $str;
