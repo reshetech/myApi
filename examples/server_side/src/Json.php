@@ -7,8 +7,7 @@ class Json extends OutputAbstract
     /**
 	 * Output json encoded data.
 	 *
-	 * @return header
-	 * @return string
+	 * @return mixed
 	 */  
     public function get()
     {

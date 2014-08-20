@@ -48,6 +48,13 @@ class Db
 	 * @var string
 	 */    
 	protected $whereString    = " 1 ";
+	
+	/**
+     * The where array.
+	 *
+	 * @var array
+     */
+    protected $whereArray = array();
 
     /**
 	 * The on duplicate part of the query.
@@ -59,16 +66,9 @@ class Db
 	/**
 	 * The on duplicate array add parameters to the binding part of the query.
 	 *
-	 * @var mixed
+	 * @var array
 	 */ 	
 	protected $onDuplicateArray = array();
-
-    /**
-     * The where array.
-	 *
-	 * @var array
-     */
-    protected $whereArray = array();
 
     /**
      * The insert array.
@@ -77,7 +77,6 @@ class Db
      */
     protected $insertArray = array();	
 		
-	
 	/**
 	 * The order by part of the query.
 	 *
@@ -117,7 +116,7 @@ class Db
     /**
 	 * If we haven't created the connection, we'll create it.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
     public function __construct()
     {
@@ -168,11 +167,11 @@ class Db
 	 */
     public function getResults()
     {
-       $this->execute();
+        $this->execute();
 	        
-       if(!empty($this->errors)) return false;
+        if(!empty($this->errors)) return false;
        
-       return $this->results;
+        return $this->results;
     }
   
   
@@ -208,6 +207,10 @@ class Db
 	
     /**
 	 * Set on duplicate key string for the query.
+	 *
+	 * @param string $str
+	 * @param array  $arr
+	 * @return string
 	 */
 	public function setOnDuplicateKey($str,$arr)
 	{	
@@ -302,7 +305,8 @@ class Db
 	/**
 	 * Check if the fields aliases array is valid.
 	 * 
-	 * @return boolean
+	 * @param  array $arr
+	 * @return bool
 	 */
 	protected function isValidFieldsAliases($arr)
 	{
@@ -393,8 +397,12 @@ class Db
 			
 		if(!empty($this->errors)) return false;
 		
+		
+		// Prepare the query.
 		$query = $this->dbh->prepare($this->sql); 
 
+		
+		// Bind the values.
 		$arr = array();
 		if($insert)
 		{
@@ -411,7 +419,6 @@ class Db
 			$this->whereArray = array();
 		}
 
-		
 		$i = 1;
 		foreach($arr as $item)
 		{
@@ -420,6 +427,7 @@ class Db
 		}
 
 		
+		// Execute the query.
         $query->execute();
 
         $results = $query->fetchAll(PDO::FETCH_OBJ);
@@ -459,11 +467,27 @@ class Db
 	        $this->errors[]='Unable to connect to the database.';
 	    }
 	}
+
+	
+	/**
+	 * Turn a flat array into a multidimensional array.
+	 *
+	 * @param  array $arr
+	 * @return array $arr
+	 */
+	protected function flatArrayToMulti($arr)
+	{
+	    if($this->isFlatArray($arr))
+            return array(0=>$arr);
+
+        return $arr;		
+	}
 	
 	
 	/**
 	 * Check if the limit array for the query is valid.
 	 *
+	 * @param  array $arr
 	 * @return bool
 	 */
 	private function isValidLimit($arr)
@@ -476,28 +500,13 @@ class Db
 		
 		return true;
 	}
-
-	
-	/**
-	 * Turn a flat array into a multidimensional array.
-	 *
-	 * @param  array $arr
-	 * @return array
-	 */
-	protected function flatArrayToMulti($arr)
-	{
-	    if($this->isFlatArray($arr))
-            return array(0=>$arr);
-
-        return $arr;		
-	}
 	
 	
 	/**
 	 * Check if an array is flat.
 	 *
 	 * @param  array $arr
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function isFlatArray($arr)
 	{
@@ -511,7 +520,8 @@ class Db
 	/**
 	 * Check if the where array for the query is valid.
 	 *
-	 * @return boolean
+	 * @param  array $arr
+	 * @return bool
 	 */
 	private function isValidWhere($arr)
 	{
@@ -547,9 +557,10 @@ class Db
 	
 	
 	/**
-	 * Checks if the insert array for the query is valid.
+	 * Check if the insert array for the query is valid.
 	 *
-	 * @return boolean
+	 * @param  array $arr
+	 * @return bool
 	 */
 	private function isValidInsert($arr)
 	{
@@ -578,7 +589,7 @@ class Db
 	
 	
 	/**
-	 * Checks if the orderBy array for the query is valid.
+	 * Check if the orderBy array for the query is valid.
 	 *
 	 * @param  array $arr
 	 * @return bool
@@ -615,6 +626,7 @@ class Db
 	/**
 	 * Create where string out of the where array.
 	 *
+	 * @param  array $where
 	 * @return string
 	 */
 	private function buildWhere($where)
@@ -642,8 +654,8 @@ class Db
 	/**
 	 * Replace the alias field name, if exist, with the table field name.
 	 *
-	 * @var string $str
-	 * @param string
+	 * @param  string $str
+	 * @return mixed
 	 **/
 	private function aliasToOriginalFieldName($str)
 	{
@@ -659,10 +671,10 @@ class Db
 	
 	
 	/**
-	 * Attaches pdo constants to the binding step.
+	 * Attach pdo constants to the binding step.
 	 *
 	 * @param  string $str
-	 * @return pdo constants
+	 * @return constants
 	 */
 	private function param($str)
 	{

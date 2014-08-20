@@ -29,6 +29,7 @@ class Watch extends Db
 	 * Exposed method to update the number of watches.
 	 *
 	 * @param  int $userId
+	 * @return mixed
 	 */	
     public function updateWatches($userId)
 	{

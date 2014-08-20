@@ -4,30 +4,30 @@ namespace Reshetech\MyApi;
 class Posts extends Db
 {
 	/**
-	 * Maximum nubmer of returned results.
+	 * Maximum number of returned results.
 	 *
-	 * @var integer
+	 * @var int
 	 */	
 	protected $maxResults = 1000;
 	
 	/**
-	 * Minimum nubmer of returned results. Should not be under 1.
+	 * Minimum number of returned results. Should not be under 1.
 	 *
-	 * @var integer
+	 * @var int
 	 */	
     protected $minResults = 1;
 	
 	/**
 	 * Nubmer of returned results.
 	 *
-	 * @var integer
+	 * @var int
 	 */
 	protected $num;
 	
 	/**
 	 * Replace the table name as the root name for the results in XML.
 	 *
-	 * @var array
+	 * @var string
 	 */
     protected $tableNameAlias = '';	
 	
@@ -50,9 +50,9 @@ class Posts extends Db
 	
 	
 	/**
-	 * Set the nubmer of returned results.
+	 * Set the number of returned results.
 	 *
-	 * @param  integer
+	 * @param  int
 	 * @return mixed
 	 */
 	public function setNum($num)
@@ -94,7 +94,7 @@ class Posts extends Db
 	
 	
 	/**
-	 * Return the alias for the table name if exists, otherwise the original table name.
+	 * Return the alias for the table name, if exists, otherwise the original table name.
 	 * 
 	 * @return string
 	 */
@@ -140,10 +140,10 @@ class Posts extends Db
 	
 	
 	/**
-	 * Checks if valid the number of returned results.
+	 * Check if the number of returned results is valid.
 	 *
-	 * @param  integer $num
-	 * @return boolean
+	 * @param  int $num
+	 * @return bool
 	 */
 	private function isValidNum($num)
 	{

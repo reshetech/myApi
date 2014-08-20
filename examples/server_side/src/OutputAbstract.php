@@ -34,7 +34,7 @@ abstract class OutputAbstract
 	/**
 	 * Number of records presented.
 	 *
-	 * @var integer
+	 * @var int
 	 */
 	protected $numOfEntries;
 	
@@ -46,9 +46,9 @@ abstract class OutputAbstract
     protected $errors   = array();
 	
 	/**
-	 * The views object.
+	 * Hold the views object.
 	 *
-	 * @var object Views
+	 * @var Views
 	 */ 
 	protected $views;
 	
@@ -56,7 +56,7 @@ abstract class OutputAbstract
 	/**
 	 * Distribute the data of the database query between the class' variables.
 	 *
-	 * @param  array
+	 * @param  array $results
 	 * @return mixed
 	 */
 	public function __construct(array $results)
@@ -73,6 +73,8 @@ abstract class OutputAbstract
 	
 	/**
 	 * Get the table name variable.
+	 *
+	 * @return string
 	 */
 	public function getTableName()
 	{
@@ -81,6 +83,8 @@ abstract class OutputAbstract
 	
 	/**
 	 * Get the fields names.
+	 *
+	 * @return array
 	 */
 	public function getFields()
 	{

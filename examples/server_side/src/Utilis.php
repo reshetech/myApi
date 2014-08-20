@@ -6,8 +6,8 @@ class Utilis
 	/**
 	 * Make a string out of array.
 	 *
-	 * @param  array
-	 * @return string
+	 * @param  array $arr
+	 * @return string $string
 	 */ 	   
 	public static function arrayToString($arr)
 	{

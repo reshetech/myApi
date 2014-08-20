@@ -6,8 +6,7 @@ class Xml extends OutputAbstract
 	/**
 	 * Output xml data.
 	 *
-	 * @return header
-	 * @return string
+	 * @return mixed
 	 */ 	   
 	public function get()
 	{  

@@ -33,7 +33,7 @@ class Views
 	/**
 	 * Header code.
 	 *
-	 * @var integer
+	 * @var int
 	 */	
 	protected $code    = 200;
 	
@@ -47,7 +47,7 @@ class Views
 	/**
 	 * Header replace.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */	
 	protected $replace = true;
 	
@@ -62,8 +62,8 @@ class Views
 	/**
 	 * Set unauthorized 403 header.
 	 *
-	 * @param  string $message
-	 * @return Views
+	 * @param  mixed $message
+	 * @return $this
 	 */	
 	public function unAuthorized($message=null)
 	{
@@ -82,8 +82,8 @@ class Views
 	/**
 	 * Set not found 404 header.
 	 *
-	 * @param  string $message
-	 * @return Views
+	 * @param  mixed $message
+	 * @return $this
 	 */
 	public function notFound($message=null)
 	{
@@ -103,7 +103,7 @@ class Views
 	 * Set internal error 500 header.
 	 *
 	 * @param  string $message
-	 * @return Views
+	 * @return $this
 	 */
 	public function internalError($message=null)
 	{
@@ -122,7 +122,7 @@ class Views
 	/**
 	 * Set 200 header.
 	 *
-	 * @return Views
+	 * @return $this
 	 */
 	public function ok()
 	{
@@ -135,10 +135,10 @@ class Views
 	/**
 	 * Set header response.
 	 *
-	 * @param  string  $message
-	 * @param  integer $code
-	 * @param  boolean $replace
-	 * @return Views
+	 * @param  string $message
+	 * @param  int    $code
+	 * @param  bool   $replace
+	 * @return $this
 	 */
 	public function setHeader($message,$code,$replace)
 	{
@@ -158,7 +158,7 @@ class Views
 	/**
 	 * Set Json header.
 	 *
-	 * @return Views
+	 * @return $this
 	 */
 	public function setJsonHeader()
 	{		
@@ -171,7 +171,7 @@ class Views
 	/**
 	 * Set Xml header.
 	 *
-	 * @return Views
+	 * @return $this
 	 */
 	public function setXmlHeader()
 	{
@@ -209,8 +209,6 @@ class Views
 	
 	/**
 	 * Return header.
-	 *
-	 * @return header
 	 */
 	public function getHeader()
 	{
@@ -231,6 +229,9 @@ class Views
 	
 	/**
 	 * Print string to screen, and exit.
+	 * 
+	 * @param string $str
+	 * @param bool   $exit 
 	 */
 	public function writeToScreen($str,$exit=true)
 	{

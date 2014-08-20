@@ -4,7 +4,7 @@ namespace Reshetech\MyApi;
 class Auth extends Db
 {
 	/**
-	 * The user authentication is by default against an auth table (default myapi_auth).
+	 * The user authentication is by default against an auth table (default: myapi_auth).
 	 *
 	 * @var string
 	 */	
@@ -26,7 +26,7 @@ class Auth extends Db
 
 	
 	/**
-	 * Exposed method that checks if the user exists.
+	 * Check if the user (distant client) exists and is active.
 	 *
 	 * @param  string $key
 	 * @param  string $pass
@@ -37,7 +37,7 @@ class Auth extends Db
 		$key  = sha1(Utilis::cleanString($key));
 		$pass = sha1(Utilis::cleanString($pass));
 		
-		// The distant client should meet these 3 conditions to be authenticated.			
+		// The user should meet these 3 conditions to be authenticated.			
 		$where     = array(
                          0=>array('key','=',$key,'and'),
                          1=>array('pass','=',$pass,'and'),
@@ -55,6 +55,7 @@ class Auth extends Db
 			return $this->views->writeToScreen("Unauthorized user.",true);
 		}
 		
+		// The user id.
 		$id = $results[0]->id;
 		
 	    return $id;

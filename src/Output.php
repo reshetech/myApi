@@ -4,7 +4,7 @@ namespace Reshetech\MyApi;
 class Output
 {
 	/**
-	 * The object that holds the output.
+	 * The object that holds the output Xml or Json object.
 	 *
 	 * @var Reshetech\MyApi\Xml
 	 * @var Reshetech\MyApi\Json
@@ -12,7 +12,7 @@ class Output
 	protected $obj;
 	
 	/**
-	 * The format for output: json, xml or false.
+	 * The format for output: xml, json or false.
 	 *
 	 * @var mixed
 	 */		    
@@ -27,11 +27,11 @@ class Output
 
 	
 	/**
-	 * Creates the object to hold the output.
+	 * Create the object to hold the output.
 	 *
 	 * @param  string $format
 	 * @param  array  $results
-	 * @return the object
+	 * @return object
 	 */
 	public function create($format,$results=false)
 	{
@@ -48,7 +48,7 @@ class Output
 
 
 	/**
-	 * Output the results
+	 * Output the results.
 	 *
 	 * @return string
 	 */
