@@ -50,11 +50,33 @@ class Db
 	protected $whereString    = " 1 ";
 
     /**
+	 * The on duplicate part of the query.
+	 *
+	 * @var mixed
+	 */ 	
+	protected $onDuplicateString = null;
+	
+	/**
+	 * The on duplicate array add parameters to the binding part of the query.
+	 *
+	 * @var mixed
+	 */ 	
+	protected $onDuplicateArray = array();
+
+    /**
      * The where array.
 	 *
 	 * @var array
      */
-    protected $whereArray = array();	 
+    protected $whereArray = array();
+
+    /**
+     * The insert array.
+	 *
+	 * @var array
+     */
+    protected $insertArray = array();	
+		
 	
 	/**
 	 * The order by part of the query.
@@ -152,31 +174,8 @@ class Db
        
        return $this->results;
     }
-    
-    
-	/**
-	 * Get the class errors.
-	 *
-	 * @return mixed
-	 */
-    public function getErrors()
-    {
-        if(empty($this->errors)) return false;
-			
-        $errors = $this->errors;
-		
-		$build = "<ul>";
-        
-		foreach($errors as $error)
-		{
-			$build .= "<li>{$error}</li>";
-		}
-		$build .= "</ul>";
-		
-		return $build;
-    }
-	
-	
+  
+  
 	/**
 	 * Set the where string for the query.
 	 *
@@ -193,6 +192,55 @@ class Db
 		}
 	}
 	
+	
+	/**
+	 * Set the insert string for the query.
+	 *
+	 * @param  array  $insert
+	 * @return array
+	 */
+	public function setInsert($insert)
+	{	
+		if($this->isValidInsert($insert))
+			return $this->insertArray=$insert;
+	}
+	
+	
+    /**
+	 * Set on duplicate key string for the query.
+	 */
+	public function setOnDuplicateKey($str,$arr)
+	{	
+		$countArray = count($arr);
+		
+		$buildStr = " ON DUPLICATE KEY {$str} ";
+		
+		
+		$i=0;
+		foreach($arr as $item)
+		{
+			$item1 = trim($arr[$i][1]);
+			
+			if(preg_match('/^(-|\+)[0-9]+/',$item1))
+			{
+			    $buildStr .= " {$arr[$i][0]} = {$arr[$i][0]} {$arr[$i][1]} ";
+		    }
+			else
+			{
+			    $this->onDuplicateArray[][2] = $arr[$i][1];
+				
+				$buildStr .= " {$arr[$i][0]} = ? ";
+			}
+			
+			if($i < $countArray-1)
+			    $buildStr .= ",";
+				
+			$i++;
+		}
+		
+		$this->onDuplicateString = $buildStr;
+	}
+
 	
 	/**
 	 * Set the orderBy array for the current query.
@@ -270,7 +318,7 @@ class Db
 	
 	
 	/**
-	 * Set the sql query string.
+	 * Set the sql query string for the select command.
 	 *
 	 * @return string
 	 */
@@ -291,7 +339,39 @@ class Db
 
 		return $this->sql = $sql;
     }
-    
+	
+	
+	/**
+	 * Set the sql query string for the insert command.
+	 *
+	 * @return string
+	 */
+	protected function insert()
+    {
+		$insertArray = $this->insertArray;	
+		
+		$fields = array();
+		$values = array();
+		
+		foreach($insertArray as $item)
+		{
+		    $fields[] = $item[0];
+			$valPlaceHolders[] = '?';
+		}
+		
+		$fields = "(".implode(', ',$fields).")";
+		$valPlaceHolders = "(".implode(', ',$valPlaceHolders).")";
+		
+        $sql  = "INSERT INTO {$this->tableName} {$fields} "; 
+        $sql .= " VALUES {$valPlaceHolders} ";
+		
+
+		if($this->onDuplicateString)
+			$sql .= $this->onDuplicateString;
+			
+		return $this->sql = $sql;
+    }
+
     
 	/**
 	 * Execute the current query.
@@ -300,28 +380,63 @@ class Db
 	 */
     protected function execute()
     {
-        $this->select();
+		$insert = false;
+
 		
+		if(!empty($this->insertArray)) 
+		    $insert = true;
+		
+		if($insert)
+		    $this->insert();
+		else
+		    $this->select();
+			
 		if(!empty($this->errors)) return false;
 		
 		$query = $this->dbh->prepare($this->sql); 
+
+		$arr = array();
+		if($insert)
+		{
+     		$arr = $this->insertArray;
+
+			if(!empty($this->onDuplicateArray))
+			    $arr = array_merge($arr, $this->onDuplicateArray);
+
+			$this->insertArray = array();
+		}
+        else
+		{
+			$arr = $this->whereArray;
+			$this->whereArray = array();
+		}
+
 		
-		$i     = 1;
-		$arr   = $this->whereArray;
+		$i = 1;
 		foreach($arr as $item)
-		{		
+		{
 			$query->bindValue($i,$item[2]);
-			
 			$i++;
 		}
 
-        $query->execute();
 		
-        $results = $query->fetchAll(PDO::FETCH_OBJ);
+        $query->execute();
 
-        if($query -> rowCount() > 0)
-            return $this->results=$results;
+        $results = $query->fetchAll(PDO::FETCH_OBJ);
+		
+
+		if(!$insert)
+		{
+			if($query -> rowCount() > 0)
+				return $this->results=$results;
+		}
+		else
+		{
+		    if($query -> rowCount() > 0)
+				return $this->results=$query -> rowCount();
+		}
         
+		
         $this->errors[]='No results.';
     }
 	
@@ -347,7 +462,7 @@ class Db
 	
 	
 	/**
-	 * Checks if the limit array for the query is valid.
+	 * Check if the limit array for the query is valid.
 	 *
 	 * @return bool
 	 */
@@ -364,7 +479,7 @@ class Db
 
 	
 	/**
-	 * Turns a flat array into a multidimensional array.
+	 * Turn a flat array into a multidimensional array.
 	 *
 	 * @param  array $arr
 	 * @return array
@@ -379,7 +494,7 @@ class Db
 	
 	
 	/**
-	 * Checks if an array is flat.
+	 * Check if an array is flat.
 	 *
 	 * @param  array $arr
 	 * @return boolean
@@ -394,7 +509,7 @@ class Db
 	
 
 	/**
-	 * Checks if the where array for the query is valid.
+	 * Check if the where array for the query is valid.
 	 *
 	 * @return boolean
 	 */
@@ -427,6 +542,37 @@ class Db
 			if(isset($item[3]) && !in_array(strtolower(trim($item[3])),$allowedConditions)) return false;
 	    }
 		
+		return true;
+	}
+	
+	
+	/**
+	 * Checks if the insert array for the query is valid.
+	 *
+	 * @return boolean
+	 */
+	private function isValidInsert($arr)
+	{
+		if(!is_array($arr) || empty($arr)) return false;	
+		
+		foreach($arr as $item)
+		{
+			$numItems = count($item);				
+					
+			if(empty($item) || $numItems <> 3) return false;
+			
+			
+			if(!is_string($item[0])) return false;
+			
+			
+			$allowedOperators = array('=');
+	
+			if(trim($item[1]) != '=') return false;
+			
+			
+			if(!is_string($item[2]) && !is_integer($item[2])) return false;
+	    }
+
 		return true;
 	}
 	

@@ -4,7 +4,7 @@ namespace Reshetech\MyApi;
 class Auth extends Db
 {
 	/**
-	 * The user authentication is by default against an auhth table (default myapi_auth).
+	 * The user authentication is by default against an auth table (default myapi_auth).
 	 *
 	 * @var string
 	 */	
@@ -18,7 +18,7 @@ class Auth extends Db
 	protected $fields    = array('id');
 	
 	/**
-	 * The authentication should by limited to uniquer user.
+	 * The authentication should by limited to a unique user.
 	 *
 	 * @var array
 	 */	     
@@ -30,7 +30,7 @@ class Auth extends Db
 	 *
 	 * @param  string $key
 	 * @param  string $pass
-	 * @return boolean
+	 * @return mixed
 	 */	
     public function isAuth($key,$pass)
 	{
@@ -47,7 +47,7 @@ class Auth extends Db
 		$this->setWhere($where);
 
 		$results=$this->getResults();
-
+		
 		if(!$results)
         {		
 		    $this->views->unAuthorized()->getHeader();
@@ -55,7 +55,9 @@ class Auth extends Db
 			return $this->views->writeToScreen("Unauthorized user.",true);
 		}
 		
-	    return true;
+		$id = $results[0]->id;
+		
+	    return $id;
 	}
 }
 	

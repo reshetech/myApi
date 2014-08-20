@@ -3,7 +3,7 @@ namespace Reshetech\MyApi;
 
 class Output
 {
-    /**
+	/**
 	 * The object that holds the output.
 	 *
 	 * @var Reshetech\MyApi\Xml

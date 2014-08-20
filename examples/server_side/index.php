@@ -4,19 +4,19 @@ use \Reshetech\MyApi;
 require 'src/config/init.php';
 
 // The name of the table to pull results from. e.g. 'hotels'
-$tableName = 'hotels';
+$tableName = '';
 
-// You can give a different name to the table so the results will have a name which is different than the name of the table.
-$tableNameAlias = 'resort';
+// You can give a different name to the table so the results will have a name which is different than the name of the table. e.g. 'resort'
+$tableNameAlias = '';
 
 // Name of fields in the table to pull results from. e.g. array('hotel_name','country','date_start','date_end','price')
-$fields    = array('hotel_name','country','date_start','date_end','price');
+$fields    = array();
 
 // You can also give a different name to each field for a more friendly and secure field names. e.g. array('name','region','start','end','price')
-$fieldsAliases = array('name','region','start','end','price');
+$fieldsAliases = array();
 
 // Order by clause example. e.g. array('price','asc')
-$orderBy = array('price','desc');
+$orderBy = array();
 	
 
 if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']) && $_POST['where'] != '')
@@ -24,15 +24,23 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']) && $_
 	// Check if the user is authenticated according to his user-key and password.	
 	$auth = new MyApi\Auth();
 	
-	$auth->isAuth($_POST['key'],$_POST['pass']);	
+	$userId = $auth->isAuth($_POST['key'],$_POST['pass']);
+	
+	
+	
+    // Option: Update the number of watches for the user.
+    $watch = new MyApi\Watch();	
 
+	$watch->updateWatches($userId);
+	
+	
 	
 	// Query the database for the selected data.
 	$posts  = new MyApi\Posts();
 	
 	$posts->create($tableName,$fields,$_POST['where']);
 
-	// Optional 1: maximum number of records to return.
+	// Optional 1: set the maximum number of records to return.
 	if(isset($_POST['num']))
 		$posts->setNum($_POST['num']);
 		
@@ -51,6 +59,7 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']) && $_
 	// The results returned from the query.
 	$results=$posts->get();
 		
+	
 	
 	// Prepare the output.
 	$output = new myApi\Output();

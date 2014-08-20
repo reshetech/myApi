@@ -3,7 +3,34 @@ namespace Reshetech\MyApi;
 
 class Views
 {
-    /**
+    const HTTP_OK = 200;
+    const HTTP_CREATED = 201;
+    const HTTP_FOUND = 302;
+    const HTTP_BAD_REQUEST = 400;
+    const HTTP_UNAUTHORIZED = 401;
+    const HTTP_PAYMENT_REQUIRED = 402;
+    const HTTP_FORBIDDEN = 403;
+    const HTTP_NOT_FOUND = 404;
+    const HTTP_METHOD_NOT_ALLOWED = 405;
+    const HTTP_NOT_ACCEPTABLE = 406;
+    const HTTP_REQUEST_TIMEOUT = 408;
+    const HTTP_PRECONDITION_FAILED = 412;
+    const HTTP_REQUEST_ENTITY_TOO_LARGE = 413;
+    const HTTP_REQUEST_URI_TOO_LONG = 414;
+    const HTTP_UNPROCESSABLE_ENTITY = 422;                                        // RFC4918
+    const HTTP_LOCKED = 423;                                                      // RFC491
+    const HTTP_UPGRADE_REQUIRED = 426;                                            // RFC2817
+    const HTTP_PRECONDITION_REQUIRED = 428;                                       // RFC6585
+    const HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE = 431;                             // RFC6585
+    const HTTP_INTERNAL_SERVER_ERROR = 500;
+    const HTTP_NOT_IMPLEMENTED = 501;
+    const HTTP_BAD_GATEWAY = 502;
+    const HTTP_SERVICE_UNAVAILABLE = 503;
+    const HTTP_GATEWAY_TIMEOUT = 504;
+    const HTTP_VERSION_NOT_SUPPORTED = 505;
+    const HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;                             // RFC6585
+	
+	/**
 	 * Header code.
 	 *
 	 * @var integer
@@ -40,7 +67,7 @@ class Views
 	 */	
 	public function unAuthorized($message=null)
 	{
-	    $this->code      = 403;
+	    $this->code      = self::HTTP_FORBIDDEN;
 		
 		$this->message[] = ($message && is_string($message))?
 		    Utilis::cleanString($message) : 
@@ -60,7 +87,7 @@ class Views
 	 */
 	public function notFound($message=null)
 	{
-	    $this->code      = 404;
+		$this->code      = self::HTTP_NOT_FOUND;
 		
 		$this->message[] = ($message && is_string($message))?
 		    Utilis::cleanString($message) : 
@@ -80,7 +107,7 @@ class Views
 	 */
 	public function internalError($message=null)
 	{
-	    $this->code      = 500;
+	    $this->code      = self::HTTP_INTERNAL_SERVER_ERROR;
 		
 		$this->message[] = ($message && is_string($message))?
 		    Utilis::cleanString($message) : 
@@ -99,7 +126,7 @@ class Views
 	 */
 	public function ok()
 	{
-	    $this->code    = 200;
+	    $this->code    = self::HTTP_OK;
 		
 		return $this;
 	}
