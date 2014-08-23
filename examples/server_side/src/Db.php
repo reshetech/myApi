@@ -89,7 +89,21 @@ class Db
 	 *
 	 * @var array
 	 */ 
-	protected $limit    = array(0,10);
+	protected $limit    = array(0,40);
+	
+	/**
+	 * The page number in the pagination.
+	 *
+	 * @var int
+	 */ 
+	protected $pageNumber = 0;
+	
+	/**
+	 * The number of records per page in the pagination.
+	 *
+	 * @var int
+	 */ 
+	protected $perPage    = 40;
 	
 	/**
 	 * The aliased names of the fields.
@@ -106,12 +120,19 @@ class Db
     protected $errors   = array();
 	
 	/**
+	 * The number of records returned from the query.
+	 *
+	 * @var int
+	 */
+	protected $rowCount = 0;
+	
+	/**
 	 * The views object.
 	 *
 	 * @var Views
 	 */
 	protected $views;
-	
+
 
     /**
 	 * If we haven't created the connection, we'll create it.
@@ -256,20 +277,112 @@ class Db
 		if($this->isValidOrderBy($orderBy))
 		    return $this->orderBy = $orderBy;
 	}
+
+	
+	/**
+	 * Set the limit parameters for the current query.
+	 *
+	 * @param  int  $int1
+	 * @param  int  $int2
+	 */
+	public function setLimit($int1,$int2)
+	{				
+		$arr = array((int)$int1,(int)$int2);
+		
+		$i=0;
+		foreach($arr as $item)
+		{
+		    if($i==0 && $item<0) return false;
+			
+			if($i==1 && $item<1) return false;
+			
+			if(!is_int($item)) return false;
+
+			$i++;
+		}
+		
+        $this->limit = $arr;
+	}
 	
 	
 	/**
-	 * Set the limit array for the current query.
+	 * Set the limit parameters for the pagination.
 	 *
-	 * @param  array  $limit
-	 * @return array
+	 * @param mixed $num
+	 * @param mixed $str
 	 */
-	public function setLimit($limit)
-	{			
-		if($this->isValidLimit($limit))
-		    $this->limit = $limit;
+	public function setPagination($num=null,$str=null)
+	{
+		if(!$num && !$str)
+		{
+			if(!isset($this->pageNumber) || !isset($this->perPage)) return false;
+			
+			$arr = array($this->pageNumber, $this->perPage);
+				
+			if(!$this->isValidLimit($arr)) return false;
+				
+			$pageNumber = $this->pageNumber;
+			
+			$pageNumberMinus1 = $pageNumber-1;
+			
+			$perPage    = $this->perPage;
+
+			
+			return $this->setLimit($pageNumberMinus1*$perPage, $perPage);
+		}
+		
+		
+		if($str == 'num')
+			return $this->perPage    = $num;
+			
+		
+		if($str == 'page')
+			return $this->pageNumber = $num;
 	}
 	
+
+    /**
+	 * Add pagination information to the results.
+	 *
+	 * @return mixed
+	 */
+	protected function paginationResult()
+	{
+	    if($this->pageNumber < 1) return false;
+		
+
+		$num         = $this->perPage;
+		
+		$currentPage = $this->pageNumber;
+		
+		$minPage     = 1;
+		
+		$maxPage     = ceil($this->rowCount/$num);
+		
+		$prevPage    = ($currentPage-1<$minPage)? false : $currentPage-1;
+		
+		$nextPage    = ($currentPage+1>$maxPage)? false : $currentPage+1;
+		
+		
+		if($currentPage > $maxPage || $currentPage < $minPage) return false;
+		
+		
+		$class = new \StdClass();
+		
+		$class -> page     = $currentPage." of ".$maxPage;
+		
+		$class -> results  = $num." of ".$this->rowCount;
+		
+		if($prevPage)
+		    $class -> previous = 'num='.$num.'&page='.$prevPage;
+			
+		if($nextPage)
+		    $class -> next     = 'num='.$num.'&page='.$nextPage;
+		
+		
+		return $class;
+	}
+
 	
 	/**
 	 * Set an alias to the fields names.
@@ -336,10 +449,11 @@ class Db
         $sql .= " FROM {$this->tableName} ";	
 		$sql .= " WHERE {$this->whereString} ";
 		
+
 		if(!empty($this->orderBy))
 			$sql .= " ORDER BY {$this->orderBy[0]} {$this->orderBy[1]} ";
 			
-		$sql .= " LIMIT {$this->limit[0]} ,{$this->limit[1]} ";
+		//$sql .= " LIMIT {$this->limit[0]} ,{$this->limit[1]} ";
 
 		return $this->sql = $sql;
     }
@@ -393,10 +507,11 @@ class Db
 		if($insert)
 		    $this->insert();
 		else
-		    $this->select();
+		    $this->select();			
+			
 			
 		if(!empty($this->errors)) return false;
-		
+
 		
 		// Prepare the query.
 		$query = $this->dbh->prepare($this->sql); 
@@ -432,17 +547,27 @@ class Db
 
         $results = $query->fetchAll(PDO::FETCH_OBJ);
 		
+		
+        if($query -> rowCount() > 0)
+		{
+			$this->rowCount = $count = $query -> rowCount();
+			
+			if(!$insert)
+			{
+				$start = $this->limit[0];
+								
+			    $len   = $this->limit[1];
 
-		if(!$insert)
-		{
-			if($query -> rowCount() > 0)
+				$results=array_slice($results, $start, $len);
+				
+                
 				return $this->results=$results;
-		}
-		else
-		{
-		    if($query -> rowCount() > 0)
-				return $this->results=$query -> rowCount();
-		}
+			}
+			else
+			{
+				return $this->results=$count;
+			}
+        }
         
 		
         $this->errors[]='No results.';
@@ -492,11 +617,12 @@ class Db
 	 */
 	private function isValidLimit($arr)
 	{
-		if(!is_array($arr)) return false;
+		if(!is_array($arr) || empty($arr) || count($arr)<>2) return false;
 		
-		if(empty($arr) || count($arr) <>2) return false;
-		
-		if(!is_integer($arr[0]) || !is_integer($arr[1])) return false;
+		foreach($arr as $item)
+		{
+		    if(!is_integer($item) || $item<0) return false;
+		}
 		
 		return true;
 	}

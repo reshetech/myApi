@@ -29,14 +29,14 @@ abstract class OutputAbstract
 	 *
 	 * @var array
 	 */
-	protected $entreis=array();
+	protected $entries=array();
 	
 	/**
-	 * Number of records presented.
+	 * The number of records to be presented (without pagination).
 	 *
 	 * @var int
 	 */
-	protected $numOfEntries;
+	protected $recordNum;
 	
 	/**
 	 * The errors array.
@@ -99,25 +99,49 @@ abstract class OutputAbstract
 	 */
     protected function objToArray()
     {
-		$entreis=array();
+		$entries=array();
 				
         $numOfEntry = 0;
-		$results=$this->results;
+		
+		$recordNum  = 0;
+		
+		$results    = $this->results;
 
-	    foreach($results as $result)
+		
+		$countResults = count($results);
+		
+		$fields=$this->fields;
+		
+		$countFields  = count($fields);
+		
+		foreach($results as $result)
         {
-            $fields=$this->fields;		   
-
             foreach($fields as $field)
 		    {
-				$entreis[$numOfEntry][$field] = $result->$field;
+				if(isset($result->$field))
+				{
+				    $entries[$numOfEntry][$field] = $result->$field;
+					$recordNum++;
+				}
 		    }
-           
+			
 			$numOfEntry++;
-        }
-		$this->numOfEntries=$numOfEntry;
+		}
+		
+		$this->recordNum   =$recordNum/$countFields;
 
-		return $this->entreis=$entreis;
+		
+		if(isset($results['pagination']))
+		{
+			$paginationArray = $results['pagination'];
+			
+			foreach($paginationArray as $field => $value) 
+			{
+			   $entries['pagination'][$field] = $value;
+			}			
+		}
+
+		return $this->entries=$entries;
     }
 	
 	

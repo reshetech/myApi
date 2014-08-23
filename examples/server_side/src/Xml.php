@@ -12,7 +12,7 @@ class Xml extends OutputAbstract
 	{  
 		$this->objToArray();
 	   
-		$arr = $this->entreis;
+		$arr = $this->entries;
 		
 		$tableName = $this->getTableName();
 		
@@ -22,11 +22,12 @@ class Xml extends OutputAbstract
 
 		$output .= "<group-".$tableName.">".PHP_EOL;
 	   
-		$numOfRows = $this->numOfEntries;
+		$numOfRows = $this->recordNum;
+		
 		for($i = 0 ; $i < $numOfRows; $i++)
 		{
-			$output .= "<".$tableName.">".PHP_EOL;
-			 
+			$output .= "<".$tableName.">".PHP_EOL;			
+			
 			foreach($fields as $field)
 			{
 				$output .= "<".$field.">".$arr[$i][$field]."</".$field.">".PHP_EOL;

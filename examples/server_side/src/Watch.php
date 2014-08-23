@@ -54,8 +54,12 @@ class Watch extends Db
 
 		$results=$this->getResults();
 
-		if(!$results)		
-			error_log("Error: failed update number of watches.\n");
+		if(!$results)
+        {		
+			$now = date('Y-m-d H:i:s');
+			
+			error_log("[date: $now] [myapi_auth_id: $userId] Error: Failed updating the number of watches.\n");
+		}
 	}
 }
 	

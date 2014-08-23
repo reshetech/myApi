@@ -17,6 +17,7 @@ Features
 	<li>Returns data in JSON or XML formats.</li>
 	<li>The client can choose the number of records to pull from the service.</li>
 	<li>Highly secured user authentication.</li>
+	<li>Support pagination.</li>
 	<li>The users usage of the api can be tracked.</li>
 	<li>Simple installation on both the service provider side and client side.</li>
 </ul>

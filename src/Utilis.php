@@ -53,4 +53,20 @@ class Utilis
 		
 		return $cleanArray;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public static function url()
+	{
+	    return $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+	}
 }

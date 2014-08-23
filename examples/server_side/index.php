@@ -4,19 +4,19 @@ use \Reshetech\MyApi;
 require 'src/config/init.php';
 
 // The name of the table to pull results from. e.g. 'hotels'
-$tableName = '';
+$tableName = 'hotels';
 
-// You can give a different name to the table so the results will have a name which is different than the name of the table. e.g. 'resort'
-$tableNameAlias = '';
+// You can give a different name to the table so the results will have a name which is different than the name of the table.
+$tableNameAlias = 'resort';
 
 // Name of fields in the table to pull results from. e.g. array('hotel_name','country','date_start','date_end','price')
-$fields    = array();
+$fields    = array('hotel_name','country','date_start','date_end','price');
 
 // You can also give a different name to each field for a more friendly and secure field names. e.g. array('name','region','start','end','price')
-$fieldsAliases = array();
+$fieldsAliases = array('name','region','start','end','price');
 
 // Order by clause example. e.g. array('price','asc')
-$orderBy = array();
+$orderBy = array('price','desc');
 	
 
 if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']) && $_POST['where'] != '')
@@ -44,17 +44,23 @@ if(isset($_POST['key']) && isset($_POST['pass']) && isset($_POST['where']) && $_
 	if(isset($_POST['num']))
 		$posts->setNum($_POST['num']);
 		
-	// Optional 2: how to order the records.
+	// Optional 2: set the pagination and the page number.
+	if(isset($_POST['page']))
+		$posts->setPage($_POST['page'])->setPagination();
+		
+	// Optional 3: how to order the records.
 	if(isset($orderBy))
 	    $posts->setOrderBy($orderBy);
 		
-	// Optional 3: set an alias to the table name.
+	// Optional 4: set an alias to the table name.
 	if(isset($tableNameAlias))
 	    $posts->setTableAlias($tableNameAlias);
 	
-	// Optional 4: set an alias to the table fields.
+	// Optional 5: set an alias to the table fields.
 	if(isset($fieldsAliases))
 	    $posts->setFieldsAlias($fieldsAliases);
+		
+		
 	
 	// The results returned from the query.
 	$results=$posts->get();

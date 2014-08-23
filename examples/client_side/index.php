@@ -1,18 +1,20 @@
 <?php
 
-$clientKey  = ''; // Unhashed user key from authentications table
-$clientPass = ''; // Unhashed user password from authentications table
-$url        = "http://server-provider.com/path/to/myApi"; // Change to your web service site and path to myApi folder
+$clientKey  = '123456'; // Unhashed user key from authentications table
+$clientPass = 'pass'; // Unhashed user password from authentications table
+$url        = "http://localhost/myApi/index.php"; // Change to your web service site and path to myApi folder
 
 
 // Do not edit beneath this remark.
 $format      = (isset($_GET['format']))? urlencode($_GET['format']): 'json';
 
-$num         = (isset($_GET['num']))?    urlencode($_GET['num'])   : '0';
+$num         = (isset($_GET['num']))?    urlencode($_GET['num'])   : null;
+
+$page        = (isset($_GET['page']))?   urlencode($_GET['page']) : null;
 
 $where       = (isset($_GET['where']))?  urlencode($_GET['where']) : ''; 
 
-$credentials = "key={$clientKey}&pass={$clientPass}&where={$where}&format={$format}&num={$num}";
+$credentials = "key={$clientKey}&pass={$clientPass}&where={$where}&format={$format}&num={$num}&page={$page}";
 
 $handle = curl_init($url);
 

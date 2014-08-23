@@ -13,7 +13,7 @@ class Json extends OutputAbstract
     {
 		$this->objToArray();
 		
-	    $arr = $this->entreis;
+	    $arr = $this->entries;
 
         if(!empty($this->errors))
         {
@@ -26,7 +26,17 @@ class Json extends OutputAbstract
 		
 		$this->views->setJsonHeader()->getHeader();
 		
-        $output = json_encode($arr);
+		$output = json_encode(
+		    array_map(
+				function($key, $value) 
+				{ 
+				    return array($key, $value); 
+				},
+				array_keys($arr),
+				array_values($arr)
+		    ),
+			JSON_PRETTY_PRINT
+		);
 		
 		$this->views->writeToScreen($output,true);
     }

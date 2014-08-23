@@ -8,7 +8,7 @@ class Posts extends Db
 	 *
 	 * @var int
 	 */	
-	protected $maxResults = 1000;
+	protected $maxResults = 100;
 	
 	/**
 	 * Minimum number of returned results. Should not be under 1.
@@ -16,13 +16,6 @@ class Posts extends Db
 	 * @var int
 	 */	
     protected $minResults = 1;
-	
-	/**
-	 * Nubmer of returned results.
-	 *
-	 * @var int
-	 */
-	protected $num;
 	
 	/**
 	 * Replace the table name as the root name for the results in XML.
@@ -46,11 +39,13 @@ class Posts extends Db
 	    $this->setFields($fields);
 		
 	    $this->prepareWhere($where);
+		
+		$this->setLimit(0,$this->perPage);
 	}
 	
 	
 	/**
-	 * Set the number of returned results.
+	 * Set the number of returned results per page.
 	 *
 	 * @param  int
 	 * @return mixed
@@ -59,20 +54,34 @@ class Posts extends Db
     {	        
 		$num = (int)$num;
 		
-		if($num == 0 || $num == '') $num = 100;
-        
-        $isValidNum = $this->isValidNum($num);
+		if($num < $this->minResults || $num == '') $num = $this->perPage;
 		
-		if(!$isValidNum)
+		if($num > $this->maxResults)
 		{
-			return $this->errors[]="Number of results should be between: {$this->minResults} and {$this->maxResults}.";
+			return $this->errors[]="Number of results per page should be between: {$this->minResults} and {$this->maxResults}.";
 		}
         
-		$this -> num = $num;
+		$this->setPagination($num,'num');
 		
-		$limit=array(0,$num);
+		return $this;
+    }
+	
+	
+	/**
+	 * Set the number of page in the pagination.
+	 *
+	 * @param  int
+	 * @return mixed
+	 */
+	public function setPage($num)
+    {	        
+		$num = (int)$num;
 		
-		return $this->setLimit($limit);
+		if($num < 1 || $num == '') $num = 1;
+		
+		$this->setPagination($num,'page');
+		
+		return $this;
     }
 	
 	
@@ -115,7 +124,7 @@ class Posts extends Db
 	public function get()
     {
         $this->execute();
-	        
+		
         if(!empty($this->errors))
 		{
 		    $this->views->notFound('No results found.')->getHeader();
@@ -134,23 +143,14 @@ class Posts extends Db
 			
 			$results   = $this->transformFieldNames($this->results);
 			
+			if($this->paginationResult() && $this->rowCount>$this->perPage)
+			{
+				$results['pagination'] = $this->paginationResult();
+			} 
+			
 			return array($tableName,$fields,$results);
-        }			
+        }		
     }
-	
-	
-	/**
-	 * Check if the number of returned results is valid.
-	 *
-	 * @param  int $num
-	 * @return bool
-	 */
-	private function isValidNum($num)
-	{
-		if($num > $this->maxResults || $num < $this->minResults) return false;
-		
-		return true;
-	}
 	
 	
 	/**
@@ -273,7 +273,7 @@ class Posts extends Db
 		$fieldsAliases    = $this->fieldsAliases;
 
         $transformedArray = array();
-		
+
 		$k=0;
 		foreach($entries as $entry)
 		{
